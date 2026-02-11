@@ -1,6 +1,6 @@
 package iuh.innogreen.blockchain.igc.service.auth.impl;
 
-import iuh.innogreen.blockchain.igc.config.AuthConfig;
+import iuh.innogreen.blockchain.igc.config.auth.AuthConfig;
 import iuh.innogreen.blockchain.igc.entity.User;
 import iuh.innogreen.blockchain.igc.service.auth.JWTService;
 import lombok.AccessLevel;

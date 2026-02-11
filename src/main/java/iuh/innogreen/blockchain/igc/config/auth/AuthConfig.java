@@ -1,4 +1,4 @@
-package iuh.innogreen.blockchain.igc.config;
+package iuh.innogreen.blockchain.igc.config.auth;
 
 import com.nimbusds.jose.jwk.source.ImmutableSecret;
 import com.nimbusds.jose.util.Base64;
