@@ -1,19 +1,15 @@
 package iuh.innogreen.blockchain.igc.controller.auth;
 
-import io.swagger.v3.oas.annotations.Parameter;
 import iuh.innogreen.blockchain.igc.dto.base.ApiResponse;
 import iuh.innogreen.blockchain.igc.dto.request.auth.LoginRequest;
 import iuh.innogreen.blockchain.igc.dto.request.auth.RegisterRequest;
 import iuh.innogreen.blockchain.igc.dto.response.auth.DefaultAuthResponse;
-import iuh.innogreen.blockchain.igc.dto.response.auth.UserSessionResponse;
 import iuh.innogreen.blockchain.igc.service.auth.AuthService;
 import jakarta.validation.Valid;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
-import lombok.experimental.NonFinal;
 import org.jspecify.annotations.NonNull;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
