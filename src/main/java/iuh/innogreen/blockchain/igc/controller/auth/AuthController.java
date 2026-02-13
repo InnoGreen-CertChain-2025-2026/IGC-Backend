@@ -32,6 +32,7 @@ public class AuthController {
     public ApiResponse<Void> register(
             @RequestBody @Valid RegisterRequest registerRequest
     ) {
+        authService.register(registerRequest);
         return ApiResponse.<Void>builder().build();
     }
 
