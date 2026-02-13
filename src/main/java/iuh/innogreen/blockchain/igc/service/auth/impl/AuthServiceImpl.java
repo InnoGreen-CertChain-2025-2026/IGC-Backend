@@ -70,7 +70,7 @@ public class AuthServiceImpl implements iuh.innogreen.blockchain.igc.service.aut
 
         User user = User
                 .builder()
-                .email(request.email())
+                .email(request.email().toLowerCase())
                 .name(request.name())
                 .hashedPassword(passwordEncoder.encode(request.password()))
                 .address(request.address() != null && !request.address().isBlank() ? request.address() : null)
@@ -83,7 +83,7 @@ public class AuthServiceImpl implements iuh.innogreen.blockchain.igc.service.aut
     @Override
     public AuthResultWrapper login(LoginRequest loginRequest) {
         var authenticationToken = new UsernamePasswordAuthenticationToken(
-                loginRequest.email(),
+                loginRequest.email().toLowerCase(),
                 loginRequest.password()
         );
 
