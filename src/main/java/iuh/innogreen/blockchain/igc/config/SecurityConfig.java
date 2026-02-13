@@ -32,7 +32,6 @@ public class SecurityConfig {
 
             // Authentication
             "/auth/login",
-            "/auth/mobile/login",
             "/auth/logout",
             "/auth/register",
             "/auth/refresh",

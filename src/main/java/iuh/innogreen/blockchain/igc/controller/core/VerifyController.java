@@ -1,13 +1,16 @@
 package iuh.innogreen.blockchain.igc.controller.core;
 
-import iuh.innogreen.blockchain.igc.dto.response.VerifyResponse;
+import iuh.innogreen.blockchain.igc.dto.response.core.VerifyResponse;
 import iuh.innogreen.blockchain.igc.service.core.CertificateService;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
 
 import java.util.HashMap;
 import java.util.Map;

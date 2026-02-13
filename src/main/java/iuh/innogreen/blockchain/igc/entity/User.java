@@ -16,11 +16,11 @@ import java.time.LocalDate;
 @NoArgsConstructor
 @Getter
 @Setter
+@Builder
 public class User extends BaseEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @EqualsAndHashCode.Include
     private Long id;
 
     @Column(unique = true)
@@ -30,7 +30,7 @@ public class User extends BaseEntity {
     private String name;
 
     @Column(nullable = false)
-    private String password;
+    private String hashedPassword;
 
     @Column(nullable = true)
     private String address;
