@@ -27,6 +27,17 @@ blockchain:
   admin-private-key: ${BLOCKCHAIN_ADMIN_PRIVATE_KEY}
   issuer-name: "IUH"
 
+security:
+  cors:
+    allowed-origins: ${SECURITY_CORS_ALLOWED_ORIGINS}
+  jwt:
+    secret: ${SECURITY_JWT_SECRET}
+    access-token-expiration: "300"
+    refresh-token-expiration: "86400"
+  cookie:
+    same-site: "None"
+    secure: "true"
+
 logging:
   level:
     root: INFO
