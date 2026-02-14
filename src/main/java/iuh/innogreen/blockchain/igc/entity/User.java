@@ -1,6 +1,7 @@
 package iuh.innogreen.blockchain.igc.entity;
 
 import iuh.innogreen.blockchain.igc.entity.base.BaseEntity;
+import iuh.innogreen.blockchain.igc.entity.constant.Gender;
 import jakarta.persistence.*;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
@@ -35,15 +36,18 @@ public class User extends BaseEntity {
     String phoneNumber;
 
     @Column(nullable = false)
-    String hashedPassword;
-
-    @Column(nullable = true)
     String address;
 
-    @Column(nullable = true)
+    @Column(nullable = false)
     LocalDate dob;
+
+    @Column(nullable = false)
+    Gender gender;
 
     @Column(nullable = true, name = "avatar_url")
     String avatarUrl;
+
+    @Column(nullable = false)
+    String hashedPassword;
 
 }

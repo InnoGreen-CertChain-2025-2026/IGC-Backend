@@ -73,9 +73,10 @@ public class AuthServiceImpl implements iuh.innogreen.blockchain.igc.service.aut
                 .email(request.email().toLowerCase())
                 .name(request.name())
                 .phoneNumber(request.phoneNumber())
-                .hashedPassword(passwordEncoder.encode(request.password()))
-                .address(request.address() != null && !request.address().isBlank() ? request.address() : null)
+                .address(request.address())
                 .dob(request.dob())
+                .gender(request.gender())
+                .hashedPassword(passwordEncoder.encode(request.password()))
                 .build();
 
         userRepository.save(user);
