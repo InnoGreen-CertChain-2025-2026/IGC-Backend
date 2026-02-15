@@ -27,14 +27,15 @@ public class OrganizationMember {
     Long id;
 
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
-    @JoinColumn(name = "user_id")
+    @JoinColumn(name = "user_id", nullable = false)
     User user;
 
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
-    @JoinColumn(name = "organization_id")
+    @JoinColumn(name = "organization_id", nullable = false)
     Organization organization;
 
     @Enumerated(EnumType.STRING)
+    @Column(nullable = false, length = 20)
     OrganizationRole organizationRole;
 
 }
