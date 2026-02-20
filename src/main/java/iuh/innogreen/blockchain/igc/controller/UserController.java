@@ -10,6 +10,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
 import org.jspecify.annotations.NonNull;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 /**
  * Admin 2/13/2026
@@ -39,6 +40,14 @@ public class UserController {
             UpdateProfileRequest updateProfileRequest
     ) {
         userService.updateUserProfile(updateProfileRequest);
+        return ApiResponse.<Void>builder().build();
+    }
+
+    @PostMapping("/me/avatar")
+    public ApiResponse<@NonNull Void> updateUserAvatar(
+            @RequestPart("avatar") MultipartFile avatar
+    ) {
+        userService.updateUserAvatar(avatar);
         return ApiResponse.<Void>builder().build();
     }
 }

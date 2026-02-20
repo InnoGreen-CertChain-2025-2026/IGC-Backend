@@ -1,17 +1,20 @@
 package iuh.innogreen.blockchain.igc.service.user.impl;
 
+import iuh.innogreen.blockchain.igc.advice.exception.S3UploadException;
+import iuh.innogreen.blockchain.igc.config.s3.S3Service;
 import iuh.innogreen.blockchain.igc.dto.request.user.UpdateProfileRequest;
 import iuh.innogreen.blockchain.igc.dto.response.user.UserProfileResponse;
 import iuh.innogreen.blockchain.igc.dto.response.user.UserSessionResponse;
 import iuh.innogreen.blockchain.igc.entity.User;
-import iuh.innogreen.blockchain.igc.repository.UserRepository;
 import iuh.innogreen.blockchain.igc.service.user.CurrentUserProvider;
 import iuh.innogreen.blockchain.igc.service.user.UserService;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.multipart.MultipartFile;
 
 /**
  * Admin 2/13/2026
@@ -22,8 +25,14 @@ import org.springframework.transaction.annotation.Transactional;
 @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
 public class UserServiceImpl implements UserService {
 
-    UserRepository userRepository;
+    // Service
+    S3Service s3Service;
+
+    // Provider
     CurrentUserProvider currentUserProvider;
+
+    // Constant
+    static Long MAX_AVATAR_FILE_SIZE = 5 * 1024 * 1024L;
 
     @Override
     public UserSessionResponse getUserSession() {
@@ -59,6 +68,39 @@ public class UserServiceImpl implements UserService {
         user.setAddress(updateProfileRequest.address());
         user.setDob(updateProfileRequest.dob());
         user.setGender(updateProfileRequest.gender());
+    }
+
+    @Override
+    public void updateUserAvatar(MultipartFile file) {
+        User user = currentUserProvider.get();
+
+        String folderName = "users/" + user.getId() + "/avatar";
+        String oldAvatarUrl = user.getAvatarUrl();
+
+        if (file != null) {
+            String newAvatarUrl = s3Service.uploadFile(file, folderName, false, MAX_AVATAR_FILE_SIZE);
+            user.setAvatarUrl(newAvatarUrl);
+
+            try {
+
+                if (oldAvatarUrl != null && !oldAvatarUrl.isBlank())
+                    s3Service.deleteFileByKey(oldAvatarUrl);
+
+                try {
+                    s3Service.deleteFileByKey(newAvatarUrl);
+                } catch (Exception ignored) {
+                }
+
+                user.setAvatarUrl(oldAvatarUrl);
+                throw new S3UploadException(
+                        "Lỗi khi xóa ảnh cũ, đã hoàn tác cập nhật.",
+                        HttpStatus.INTERNAL_SERVER_ERROR
+                );
+
+            } catch (Exception e) {
+                user.setAvatarUrl(oldAvatarUrl);
+            }
+        }
     }
 
 
