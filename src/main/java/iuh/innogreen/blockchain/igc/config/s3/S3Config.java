@@ -1,4 +1,4 @@
-package iuh.innogreen.blockchain.igc.config;
+package iuh.innogreen.blockchain.igc.config.s3;
 
 import lombok.AccessLevel;
 import lombok.experimental.FieldDefaults;

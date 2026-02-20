@@ -4,6 +4,7 @@ import iuh.innogreen.blockchain.igc.dto.request.user.UpdateProfileRequest;
 import iuh.innogreen.blockchain.igc.dto.response.user.UserProfileResponse;
 import iuh.innogreen.blockchain.igc.dto.response.user.UserSessionResponse;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.multipart.MultipartFile;
 
 /**
  * Admin 2/13/2026
@@ -16,4 +17,6 @@ public interface UserService {
 
     @Transactional
     void updateUserProfile(UpdateProfileRequest updateProfileRequest);
+
+    void updateUserAvatar(MultipartFile file);
 }

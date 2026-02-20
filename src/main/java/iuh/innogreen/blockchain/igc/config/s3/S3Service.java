@@ -1,4 +1,4 @@
-package iuh.innogreen.blockchain.igc.service.s3;
+package iuh.innogreen.blockchain.igc.config.s3;
 
 import iuh.innogreen.blockchain.igc.advice.exception.S3UploadException;
 import lombok.AccessLevel;
@@ -37,6 +37,7 @@ public class S3Service {
     @Value("${aws.s3.domain}")
     @NonFinal
     String domain;
+
 
     /**
      * =============================================
