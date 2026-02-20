@@ -71,6 +71,7 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
+    @Transactional
     public void updateUserAvatar(MultipartFile file) {
         User user = currentUserProvider.get();
 
@@ -86,19 +87,19 @@ public class UserServiceImpl implements UserService {
                 if (oldAvatarUrl != null && !oldAvatarUrl.isBlank())
                     s3Service.deleteFileByKey(oldAvatarUrl);
 
+            } catch (Exception e) {
+
                 try {
                     s3Service.deleteFileByKey(newAvatarUrl);
                 } catch (Exception ignored) {
                 }
 
                 user.setAvatarUrl(oldAvatarUrl);
+
                 throw new S3UploadException(
                         "Lỗi khi xóa ảnh cũ, đã hoàn tác cập nhật.",
                         HttpStatus.INTERNAL_SERVER_ERROR
                 );
-
-            } catch (Exception e) {
-                user.setAvatarUrl(oldAvatarUrl);
             }
         }
     }

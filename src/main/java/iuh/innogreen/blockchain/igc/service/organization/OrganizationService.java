@@ -7,6 +7,7 @@ import org.jspecify.annotations.NonNull;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
 
@@ -16,7 +17,10 @@ import java.util.List;
  **/
 public interface OrganizationService {
     @Transactional
-    void createOrganization(CreateOrganizationRequest request);
+    void createOrganization(
+            CreateOrganizationRequest request,
+            MultipartFile logoFile
+    );
 
     @Transactional(readOnly = true)
     Page<@NonNull OrganizationSummaryResponse> getUserOrganizations(Pageable pageable);

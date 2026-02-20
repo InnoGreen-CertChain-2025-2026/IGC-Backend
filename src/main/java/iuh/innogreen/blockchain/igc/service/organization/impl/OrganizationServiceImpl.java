@@ -1,5 +1,6 @@
 package iuh.innogreen.blockchain.igc.service.organization.impl;
 
+import iuh.innogreen.blockchain.igc.config.s3.S3Service;
 import iuh.innogreen.blockchain.igc.dto.request.organization.CreateOrganizationRequest;
 import iuh.innogreen.blockchain.igc.dto.response.orginazation.OrganizationResponse;
 import iuh.innogreen.blockchain.igc.dto.response.orginazation.OrganizationSummaryResponse;
@@ -22,6 +23,7 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
 
@@ -41,6 +43,10 @@ public class OrganizationServiceImpl implements OrganizationService {
     // Provider
     CurrentUserProvider currentUserProvider;
 
+    // Constant
+    static Long MAX_LOGO_FILE_SIZE = 5 * 1024 * 1024L;
+    private final S3Service s3Service;
+
     /**
      * =============================================
      * Tạo tổ chức
@@ -49,7 +55,10 @@ public class OrganizationServiceImpl implements OrganizationService {
 
     @Transactional
     @Override
-    public void createOrganization(CreateOrganizationRequest request) {
+    public void createOrganization(
+            CreateOrganizationRequest request,
+            MultipartFile logoFile
+    ) {
 
         // Check ràng buộc
         String code = request.code();
@@ -94,6 +103,19 @@ public class OrganizationServiceImpl implements OrganizationService {
         organization.setServicePlan(request.servicePlan());
 
         Organization savedOrganization = organizationRepository.save(organization);
+
+        // Set logo
+        if (logoFile != null && !logoFile.isEmpty()) {
+            String folderName = "organizations/" + savedOrganization.getId() + "/logo";
+            String logoUrl = s3Service.uploadFile(
+                    logoFile,
+                    folderName,
+                    false,
+                    MAX_LOGO_FILE_SIZE
+            );
+            savedOrganization.setLogoUrl(logoUrl);
+        }
+
 
         // Gán quyền OWNER cho người dùng
         User user = currentUserProvider.get();

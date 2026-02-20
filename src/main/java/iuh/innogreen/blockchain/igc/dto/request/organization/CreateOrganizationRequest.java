@@ -31,8 +31,6 @@ public record CreateOrganizationRequest(
         )
         String domain,
 
-        String logoUrl,
-
         // Optional
         @Size(max = 2000, message = "Mô tả tối đa 2000 ký tự")
         String description,
