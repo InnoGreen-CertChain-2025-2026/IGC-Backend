@@ -2,11 +2,7 @@ package iuh.igc.controller;
 
 import iuh.igc.dto.base.ApiResponse;
 import iuh.igc.dto.base.PageResponse;
-import iuh.igc.dto.request.organization.CreateOrganizationRequest;
-import iuh.igc.dto.request.organization.CreateOrganizationInviteRequest;
-import iuh.igc.dto.request.organization.UpdateOrganizationContactRequest;
-import iuh.igc.dto.request.organization.UpdateOrganizationGeneralRequest;
-import iuh.igc.dto.request.organization.UpdateOrganizationLegalRequest;
+import iuh.igc.dto.request.organization.*;
 import iuh.igc.dto.response.orginazation.OrganizationResponse;
 import iuh.igc.dto.response.orginazation.OrganizationSummaryResponse;
 import iuh.igc.service.organization.OrganizationInviteService;

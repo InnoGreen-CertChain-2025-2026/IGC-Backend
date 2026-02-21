@@ -1,8 +1,8 @@
 package iuh.igc.service.user.base;
 
-import iuh.igc.service.user.CurrentUserProvider;
 import iuh.igc.entity.User;
 import iuh.igc.repository.UserRepository;
+import iuh.igc.service.user.CurrentUserProvider;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
