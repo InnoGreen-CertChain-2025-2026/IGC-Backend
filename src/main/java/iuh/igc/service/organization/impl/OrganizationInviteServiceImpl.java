@@ -139,6 +139,28 @@ public class OrganizationInviteServiceImpl implements OrganizationInviteService 
         invite.setRespondedAt(LocalDateTime.now());
     }
 
+    @Override
+    @Transactional
+    public void cancelInvite(String inviteToken) {
+        User currentUser = currentUserProvider.get();
+        OrganizationInvite invite = organizationInviteRepository
+                .findByInviteToken(inviteToken)
+                .orElseThrow(() -> new EntityNotFoundException("Không tìm thấy lời mời"));
+
+        validateCanInvite(invite.getOrganization().getId(), currentUser.getId());
+
+        if (invite.getStatus() != OrganizationInviteStatus.PENDING)
+            throw new DataIntegrityViolationException("Chỉ có thể hủy lời mời ở trạng thái chờ");
+
+        if (invite.getExpiresAt().isBefore(LocalDateTime.now())) {
+            invite.setStatus(OrganizationInviteStatus.EXPIRED);
+            throw new DataIntegrityViolationException("Lời mời đã hết hạn");
+        }
+
+        invite.setStatus(OrganizationInviteStatus.CANCELED);
+        invite.setRespondedAt(LocalDateTime.now());
+    }
+
     /**
      * =============================================
      * Helper

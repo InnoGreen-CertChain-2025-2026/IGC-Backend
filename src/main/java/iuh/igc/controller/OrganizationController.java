@@ -6,6 +6,7 @@ import iuh.igc.dto.request.organization.*;
 import iuh.igc.dto.response.orginazation.OrganizationResponse;
 import iuh.igc.dto.response.orginazation.OrganizationSummaryResponse;
 import iuh.igc.service.organization.OrganizationInviteService;
+import iuh.igc.service.organization.OrganizationMemberService;
 import iuh.igc.service.organization.OrganizationService;
 import jakarta.validation.Valid;
 import lombok.AccessLevel;
@@ -33,6 +34,7 @@ public class OrganizationController {
 
     OrganizationService organizationService;
     OrganizationInviteService organizationInviteService;
+    OrganizationMemberService organizationMemberService;
 
     @PostMapping
     public ApiResponse<@NonNull Void> createOrganization(
@@ -114,6 +116,41 @@ public class OrganizationController {
             @PathVariable("token") String token
     ) {
         organizationInviteService.declineInvite(token);
+        return ApiResponse.<Void>builder().build();
+    }
+
+    @PostMapping("/invites/{token}/cancel")
+    public ApiResponse<@NonNull Void> cancelOrganizationInvite(
+            @PathVariable("token") String token
+    ) {
+        organizationInviteService.cancelInvite(token);
+        return ApiResponse.<Void>builder().build();
+    }
+
+    @PostMapping("/{id}/members/{userId}/promote-moderator")
+    public ApiResponse<@NonNull Void> promoteToModerator(
+            @PathVariable("id") Long id,
+            @PathVariable("userId") Long userId
+    ) {
+        organizationMemberService.promoteToModerator(id, userId);
+        return ApiResponse.<Void>builder().build();
+    }
+
+    @PostMapping("/{id}/members/{userId}/demote-member")
+    public ApiResponse<@NonNull Void> demoteToMember(
+            @PathVariable("id") Long id,
+            @PathVariable("userId") Long userId
+    ) {
+        organizationMemberService.demoteToMember(id, userId);
+        return ApiResponse.<Void>builder().build();
+    }
+
+    @DeleteMapping("/{id}/members/{userId}")
+    public ApiResponse<@NonNull Void> kickMember(
+            @PathVariable("id") Long id,
+            @PathVariable("userId") Long userId
+    ) {
+        organizationMemberService.kickMember(id, userId);
         return ApiResponse.<Void>builder().build();
     }
 

@@ -7,6 +7,7 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
 import java.util.Collection;
+import java.util.Optional;
 
 /**
  * Admin 2/15/2026
@@ -15,6 +16,8 @@ import java.util.Collection;
 @Repository
 public interface OrganizationMemberRepository extends JpaRepository<@NonNull OrganizationMember, @NonNull Long> {
     boolean existsByOrganization_IdAndUser_Id(Long organizationId, Long userId);
+
+    Optional<OrganizationMember> findByOrganization_IdAndUser_Id(Long organizationId, Long userId);
 
     boolean existsByOrganization_IdAndUser_IdAndOrganizationRole(
             Long organizationId,

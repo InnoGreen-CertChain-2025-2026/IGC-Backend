@@ -13,4 +13,7 @@ public interface OrganizationInviteService {
 
     @Transactional
     void declineInvite(String inviteToken);
+
+    @Transactional
+    void cancelInvite(String inviteToken);
 }
