@@ -4,17 +4,14 @@ import iuh.igc.entity.constant.OrganizationRole;
 import lombok.Builder;
 
 /**
- * Admin 2/20/2026
- *
- **/
+ * Admin 2/22/2026
+ */
 @Builder
-public record OrganizationSummaryResponse(
-        Long id,
+public record OrganizationMemberResponse(
+        Long userId,
         String name,
-        String code,
-        String domain,
-        String logoUrl,
-        String description,
+        String email,
+        String avatarUrl,
         OrganizationRole role
 ) {
 }

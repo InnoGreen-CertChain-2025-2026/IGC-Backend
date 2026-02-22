@@ -1,5 +1,6 @@
 package iuh.igc.dto.response.orginazation;
 
+import iuh.igc.entity.constant.OrganizationRole;
 import iuh.igc.entity.constant.ServicePlan;
 import lombok.Builder;
 
@@ -26,6 +27,7 @@ public record OrganizationResponse(
         String contactEmail,
         String contactPhone,
 
-        ServicePlan servicePlan
+        ServicePlan servicePlan,
+        OrganizationRole role
 ) {
 }

@@ -1,4 +1,4 @@
-package iuh.igc.controller;
+package iuh.igc.controller.user;
 
 import iuh.igc.dto.base.ApiResponse;
 import iuh.igc.dto.request.user.UpdateProfileRequest;
