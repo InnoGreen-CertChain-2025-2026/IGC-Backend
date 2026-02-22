@@ -1,12 +1,13 @@
-package iuh.igc.controller;
+package iuh.igc.controller.organization;
 
 import iuh.igc.dto.base.ApiResponse;
 import iuh.igc.dto.base.PageResponse;
-import iuh.igc.dto.request.organization.*;
+import iuh.igc.dto.request.organization.CreateOrganizationRequest;
+import iuh.igc.dto.request.organization.UpdateOrganizationContactRequest;
+import iuh.igc.dto.request.organization.UpdateOrganizationGeneralRequest;
+import iuh.igc.dto.request.organization.UpdateOrganizationLegalRequest;
 import iuh.igc.dto.response.orginazation.OrganizationResponse;
 import iuh.igc.dto.response.orginazation.OrganizationSummaryResponse;
-import iuh.igc.service.organization.OrganizationInviteService;
-import iuh.igc.service.organization.OrganizationMemberService;
 import iuh.igc.service.organization.OrganizationService;
 import jakarta.validation.Valid;
 import lombok.AccessLevel;
@@ -16,16 +17,21 @@ import org.jspecify.annotations.NonNull;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.web.PageableDefault;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PatchMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestPart;
+import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
 
-
 /**
  * Admin 2/20/2026
- *
- **/
+ */
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/organizations")
@@ -33,8 +39,6 @@ import java.util.List;
 public class OrganizationController {
 
     OrganizationService organizationService;
-    OrganizationInviteService organizationInviteService;
-    OrganizationMemberService organizationMemberService;
 
     @PostMapping
     public ApiResponse<@NonNull Void> createOrganization(
@@ -62,7 +66,7 @@ public class OrganizationController {
     }
 
     @GetMapping("/{id}")
-    public ApiResponse<OrganizationResponse> getUserBriefOrganizationList(
+    public ApiResponse<OrganizationResponse> getUserOrganizationById(
             @PathVariable("id") Long id
     ) {
         return new ApiResponse<>(organizationService.getUserOrganizationById(id));
@@ -94,65 +98,4 @@ public class OrganizationController {
         organizationService.updateOrganizationContact(id, request);
         return ApiResponse.<Void>builder().build();
     }
-
-    @PostMapping("/{id}/invites")
-    public ApiResponse<String> inviteUserToOrganization(
-            @PathVariable("id") Long id,
-            @RequestBody @Valid CreateOrganizationInviteRequest request
-    ) {
-        return new ApiResponse<>(organizationInviteService.inviteUser(id, request));
-    }
-
-    @PostMapping("/invites/{token}/accept")
-    public ApiResponse<@NonNull Void> acceptOrganizationInvite(
-            @PathVariable("token") String token
-    ) {
-        organizationInviteService.acceptInvite(token);
-        return ApiResponse.<Void>builder().build();
-    }
-
-    @PostMapping("/invites/{token}/decline")
-    public ApiResponse<@NonNull Void> declineOrganizationInvite(
-            @PathVariable("token") String token
-    ) {
-        organizationInviteService.declineInvite(token);
-        return ApiResponse.<Void>builder().build();
-    }
-
-    @PostMapping("/invites/{token}/cancel")
-    public ApiResponse<@NonNull Void> cancelOrganizationInvite(
-            @PathVariable("token") String token
-    ) {
-        organizationInviteService.cancelInvite(token);
-        return ApiResponse.<Void>builder().build();
-    }
-
-    @PostMapping("/{id}/members/{userId}/promote-moderator")
-    public ApiResponse<@NonNull Void> promoteToModerator(
-            @PathVariable("id") Long id,
-            @PathVariable("userId") Long userId
-    ) {
-        organizationMemberService.promoteToModerator(id, userId);
-        return ApiResponse.<Void>builder().build();
-    }
-
-    @PostMapping("/{id}/members/{userId}/demote-member")
-    public ApiResponse<@NonNull Void> demoteToMember(
-            @PathVariable("id") Long id,
-            @PathVariable("userId") Long userId
-    ) {
-        organizationMemberService.demoteToMember(id, userId);
-        return ApiResponse.<Void>builder().build();
-    }
-
-    @DeleteMapping("/{id}/members/{userId}")
-    public ApiResponse<@NonNull Void> kickMember(
-            @PathVariable("id") Long id,
-            @PathVariable("userId") Long userId
-    ) {
-        organizationMemberService.kickMember(id, userId);
-        return ApiResponse.<Void>builder().build();
-    }
-
-
 }
