@@ -145,7 +145,7 @@ public class OrganizationServiceImpl implements OrganizationService {
 
         return organizationRepository
                 .findDistinctByOrganizationMembers_User_Id(user.getId(), pageable)
-                .map(this::mapToOrganizationSummaryResponse);
+                .map(organization -> mapToOrganizationSummaryResponse(organization, user.getId()));
     }
 
     @Transactional(readOnly = true)
@@ -156,7 +156,7 @@ public class OrganizationServiceImpl implements OrganizationService {
 
         return organizationRepository
                 .findDistinctByOrganizationMembers_User_IdOrderByNameDesc(user.getId(), pageable)
-                .map(this::mapToOrganizationSummaryResponse)
+                .map(organization -> mapToOrganizationSummaryResponse(organization, user.getId()))
                 .stream()
                 .toList();
 
@@ -171,7 +171,7 @@ public class OrganizationServiceImpl implements OrganizationService {
                 .findByIdAndOrganizationMembers_User_Id(id, user.getId())
                 .orElseThrow(() -> new EntityNotFoundException("Không tìm thấy tổ chức"));
 
-        return mapToOrganizationResponse(organization);
+        return mapToOrganizationResponse(organization, user.getId());
     }
 
     /**
@@ -241,7 +241,8 @@ public class OrganizationServiceImpl implements OrganizationService {
      * Mapper
      * =============================================
      **/
-    private OrganizationSummaryResponse mapToOrganizationSummaryResponse(Organization organization) {
+    private OrganizationSummaryResponse mapToOrganizationSummaryResponse(Organization organization, Long userId) {
+        OrganizationRole role = getOrganizationRole(organization.getId(), userId);
         return OrganizationSummaryResponse
                 .builder()
                 .id(organization.getId())
@@ -251,10 +252,12 @@ public class OrganizationServiceImpl implements OrganizationService {
                 .domain(organization.getDomain())
                 .logoUrl(organization.getLogoUrl())
                 .description(organization.getDescription())
+                .role(role)
                 .build();
     }
 
-    private OrganizationResponse mapToOrganizationResponse(Organization organization) {
+    private OrganizationResponse mapToOrganizationResponse(Organization organization, Long userId) {
+        OrganizationRole role = getOrganizationRole(organization.getId(), userId);
         return OrganizationResponse
                 .builder()
                 .id(organization.getId())
@@ -271,7 +274,15 @@ public class OrganizationServiceImpl implements OrganizationService {
                 .contactEmail(organization.getContactEmail())
                 .contactPhone(organization.getContactPhone())
                 .servicePlan(organization.getServicePlan())
+                .role(role)
                 .build();
+    }
+
+    private OrganizationRole getOrganizationRole(Long organizationId, Long userId) {
+        return organizationMemberRepository
+                .findByOrganization_IdAndUser_Id(organizationId, userId)
+                .orElseThrow(() -> new EntityNotFoundException("Không tìm thấy vai trò trong tổ chức"))
+                .getOrganizationRole();
     }
 
     /**

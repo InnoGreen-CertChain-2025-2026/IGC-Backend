@@ -1,5 +1,6 @@
 package iuh.igc.dto.response.orginazation;
 
+import iuh.igc.entity.constant.OrganizationRole;
 import lombok.Builder;
 
 /**
@@ -13,6 +14,7 @@ public record OrganizationSummaryResponse(
         String code,
         String domain,
         String logoUrl,
-        String description
+        String description,
+        OrganizationRole role
 ) {
 }
