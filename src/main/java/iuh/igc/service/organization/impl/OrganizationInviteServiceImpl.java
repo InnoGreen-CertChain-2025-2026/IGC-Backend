@@ -141,6 +141,7 @@ public class OrganizationInviteServiceImpl implements OrganizationInviteService 
                 .inviteeUser(inviteeUser.orElse(null))
                 .inviteeEmail(inviteeEmail)
                 .invitedRole(invitedRole)
+                .status(OrganizationInviteStatus.PENDING)
                 .inviteMessage(normalizeNullable(request.inviteMessage()))
                 .inviteToken(UUID.randomUUID().toString())
                 .expiresAt(LocalDateTime.now().plusDays(INVITE_EXPIRE_DAYS))
