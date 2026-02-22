@@ -1,6 +1,7 @@
 package iuh.igc.service.organization.impl;
 
 import iuh.igc.dto.request.organization.CreateOrganizationInviteRequest;
+import iuh.igc.dto.response.orginazation.OrganizationInviteResponse;
 import iuh.igc.entity.User;
 import iuh.igc.entity.constant.OrganizationInviteStatus;
 import iuh.igc.entity.constant.OrganizationRole;
@@ -26,6 +27,8 @@ import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 
 @Service
 @RequiredArgsConstructor
@@ -39,6 +42,54 @@ public class OrganizationInviteServiceImpl implements OrganizationInviteService 
     CurrentUserProvider currentUserProvider;
 
     static int INVITE_EXPIRE_DAYS = 7;
+
+    /**
+     * =============================================
+     * List invites
+     * =============================================
+     **/
+
+    @Override
+    @Transactional(readOnly = true)
+    public Page<OrganizationInviteResponse> getInvitesByUserId(Long userId, Pageable pageable) {
+        User currentUser = currentUserProvider.get();
+        if (!currentUser.getId().equals(userId)) {
+            throw new AccessDeniedException("Bạn không có quyền xem danh sách lời mời này");
+        }
+
+        User user = userRepository
+                .findById(userId)
+                .orElseThrow(() -> new EntityNotFoundException("Không tìm thấy người dùng"));
+
+        cleanupExpiredInvitesByEmail(user.getEmail());
+
+        return organizationInviteRepository
+                .findByInviteeEmailIgnoreCaseAndStatusAndExpiresAtAfter(
+                        user.getEmail(),
+                        OrganizationInviteStatus.PENDING,
+                        LocalDateTime.now(),
+                        pageable
+                )
+                .map(this::mapToOrganizationInviteResponse);
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public Page<OrganizationInviteResponse> getInvitesByOrganization(Long organizationId, Pageable pageable) {
+        User currentUser = currentUserProvider.get();
+        validateCanInvite(organizationId, currentUser.getId());
+
+        cleanupExpiredInvitesByOrganization(organizationId);
+
+        return organizationInviteRepository
+                .findByOrganization_IdAndStatusAndExpiresAtAfter(
+                        organizationId,
+                        OrganizationInviteStatus.PENDING,
+                        LocalDateTime.now(),
+                        pageable
+                )
+                .map(this::mapToOrganizationInviteResponse);
+    }
 
     /**
      * =============================================
@@ -69,6 +120,8 @@ public class OrganizationInviteServiceImpl implements OrganizationInviteService 
         )) {
             throw new DataIntegrityViolationException("Người dùng đã là thành viên của tổ chức");
         }
+
+        cleanupExpiredInvites(organizationId, inviteeEmail);
 
         boolean hasPendingInvite = organizationInviteRepository
                 .existsByOrganization_IdAndInviteeEmailIgnoreCaseAndStatusAndExpiresAtAfter(
@@ -122,10 +175,7 @@ public class OrganizationInviteServiceImpl implements OrganizationInviteService 
                 .organizationRole(invite.getInvitedRole())
                 .build();
         organizationMemberRepository.save(member);
-
-        invite.setInviteeUser(currentUser);
-        invite.setStatus(OrganizationInviteStatus.ACCEPTED);
-        invite.setRespondedAt(LocalDateTime.now());
+        organizationInviteRepository.delete(invite);
     }
 
     @Override
@@ -133,10 +183,7 @@ public class OrganizationInviteServiceImpl implements OrganizationInviteService 
     public void declineInvite(String inviteToken) {
         User currentUser = currentUserProvider.get();
         OrganizationInvite invite = findValidPendingInvite(inviteToken, currentUser);
-
-        invite.setInviteeUser(currentUser);
-        invite.setStatus(OrganizationInviteStatus.DECLINED);
-        invite.setRespondedAt(LocalDateTime.now());
+        organizationInviteRepository.delete(invite);
     }
 
     @Override
@@ -153,12 +200,11 @@ public class OrganizationInviteServiceImpl implements OrganizationInviteService 
             throw new DataIntegrityViolationException("Chỉ có thể hủy lời mời ở trạng thái chờ");
 
         if (invite.getExpiresAt().isBefore(LocalDateTime.now())) {
-            invite.setStatus(OrganizationInviteStatus.EXPIRED);
+            organizationInviteRepository.delete(invite);
             throw new DataIntegrityViolationException("Lời mời đã hết hạn");
         }
 
-        invite.setStatus(OrganizationInviteStatus.CANCELED);
-        invite.setRespondedAt(LocalDateTime.now());
+        organizationInviteRepository.delete(invite);
     }
 
     /**
@@ -190,11 +236,73 @@ public class OrganizationInviteServiceImpl implements OrganizationInviteService 
             throw new DataIntegrityViolationException("Lời mời không còn ở trạng thái chờ");
 
         if (invite.getExpiresAt().isBefore(LocalDateTime.now())) {
-            invite.setStatus(OrganizationInviteStatus.EXPIRED);
+            organizationInviteRepository.delete(invite);
             throw new DataIntegrityViolationException("Lời mời đã hết hạn");
         }
 
         return invite;
+    }
+
+    private void cleanupExpiredInvites(Long organizationId, String inviteeEmail) {
+        LocalDateTime now = LocalDateTime.now();
+        organizationInviteRepository.deleteByOrganization_IdAndInviteeEmailIgnoreCaseAndExpiresAtBeforeAndStatus(
+                organizationId,
+                inviteeEmail,
+                now,
+                OrganizationInviteStatus.PENDING
+        );
+        organizationInviteRepository.deleteByOrganization_IdAndInviteeEmailIgnoreCaseAndStatus(
+                organizationId,
+                inviteeEmail,
+                OrganizationInviteStatus.EXPIRED
+        );
+    }
+
+    private void cleanupExpiredInvitesByEmail(String inviteeEmail) {
+        LocalDateTime now = LocalDateTime.now();
+        organizationInviteRepository.deleteByInviteeEmailIgnoreCaseAndExpiresAtBeforeAndStatus(
+                inviteeEmail,
+                now,
+                OrganizationInviteStatus.PENDING
+        );
+        organizationInviteRepository.deleteByInviteeEmailIgnoreCaseAndStatus(
+                inviteeEmail,
+                OrganizationInviteStatus.EXPIRED
+        );
+    }
+
+    private void cleanupExpiredInvitesByOrganization(Long organizationId) {
+        LocalDateTime now = LocalDateTime.now();
+        organizationInviteRepository.deleteByOrganization_IdAndExpiresAtBeforeAndStatus(
+                organizationId,
+                now,
+                OrganizationInviteStatus.PENDING
+        );
+        organizationInviteRepository.deleteByOrganization_IdAndStatus(
+                organizationId,
+                OrganizationInviteStatus.EXPIRED
+        );
+    }
+
+    private OrganizationInviteResponse mapToOrganizationInviteResponse(OrganizationInvite invite) {
+        Organization organization = invite.getOrganization();
+        User inviter = invite.getInviterUser();
+        return OrganizationInviteResponse
+                .builder()
+                .id(invite.getId())
+                .inviteToken(invite.getInviteToken())
+                .organizationId(organization.getId())
+                .organizationName(organization.getName())
+                .organizationCode(organization.getCode())
+                .organizationLogoUrl(organization.getLogoUrl())
+                .inviteeEmail(invite.getInviteeEmail())
+                .inviterName(inviter.getName())
+                .inviterEmail(inviter.getEmail())
+                .invitedRole(invite.getInvitedRole())
+                .status(invite.getStatus())
+                .expiresAt(invite.getExpiresAt())
+                .createdAt(invite.getCreatedAt())
+                .build();
     }
 
     private String normalizeNullable(String value) {
